@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Company>河南软商网络科技有限公司</Company>
+    <Description>软商网络-微信业务API开发包</Description>
+    <PackageIcon>rscode64_64.png</PackageIcon>
+    <PackageReleaseNotes>软商网络-微信业务开发包</PackageReleaseNotes>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.0.14.0</AssemblyVersion>
+    <Authors>Runsoft</Authors>
+    <Title>rscode.cn</Title>
+    <Copyright>河南软商网络科技有限公司</Copyright>
+    <PackageProjectUrl>https://rscode.cn</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Message\CommonMessage\Handler\**" />
+    <Compile Remove="Message\EventMessage\Handler\**" />
+    <Compile Remove="MP\Logistics\**" />
+    <EmbeddedResource Remove="Message\CommonMessage\Handler\**" />
+    <EmbeddedResource Remove="Message\EventMessage\Handler\**" />
+    <EmbeddedResource Remove="MP\Logistics\**" />
+    <None Remove="Message\CommonMessage\Handler\**" />
+    <None Remove="Message\EventMessage\Handler\**" />
+    <None Remove="MP\Logistics\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="rscode64_64.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

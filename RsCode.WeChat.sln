@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32804.467
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RsCode.WeChat", "src\RsCode.WeChat\RsCode.WeChat.csproj", "{343801F5-B3E0-459A-8663-8780E46B23E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{43356E14-1844-46E5-B3F6-6DFC0501D289}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RsCode.WeChat.Tests", "src\RsCode.WeChat.Tests\RsCode.WeChat.Tests.csproj", "{9F505C35-5FF0-4C54-81AE-EA26F0B67117}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{343801F5-B3E0-459A-8663-8780E46B23E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{343801F5-B3E0-459A-8663-8780E46B23E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{343801F5-B3E0-459A-8663-8780E46B23E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{343801F5-B3E0-459A-8663-8780E46B23E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F505C35-5FF0-4C54-81AE-EA26F0B67117}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F505C35-5FF0-4C54-81AE-EA26F0B67117}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F505C35-5FF0-4C54-81AE-EA26F0B67117}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F505C35-5FF0-4C54-81AE-EA26F0B67117}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9F505C35-5FF0-4C54-81AE-EA26F0B67117} = {43356E14-1844-46E5-B3F6-6DFC0501D289}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61F65BCF-CFAA-4D8E-9481-D224932D24C3}
+	EndGlobalSection
+EndGlobal
