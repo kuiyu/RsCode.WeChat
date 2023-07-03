@@ -37,8 +37,6 @@ public static class WeChatServiceExtensions
             throw new ArgumentNullException(nameof(action));
         }
         
-        var options = new List<WeChatOptions>();
-        action(options);
         services.Configure<List<WeChatOptions>>(action);
 
         
@@ -54,6 +52,7 @@ public static class WeChatServiceExtensions
         services.TryAddScoped<IWeChatEventHandler, WeChatEventHandler>();
         //微信消息存储
         services.TryAddScoped<IWechatStore, RsCode.WeChat.Core.WechatStore>();
+        services.AddScoped<WeChatMiddleware>();
 
         #region  帐号管理  
         services.AddScoped<IAccountManager, AccountManager>();

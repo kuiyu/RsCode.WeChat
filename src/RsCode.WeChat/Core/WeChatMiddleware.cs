@@ -28,35 +28,39 @@ namespace RsCode.WeChat
     /// <summary>
     /// 与微信服务器通信的消息中间件
     /// </summary>
-    public class WeChatMiddleware:IMiddleware
+    public class WeChatMiddleware
     {
-       
+
         ILogger logger;
         WeChatOptions wechat;
         IWeChatEventHandler weChatEventHandler;
         List<WeChatOptions> WeChatOptions;
         IWechatStore wechatStore;
-        public WeChatMiddleware(//RequestDelegate _next,
+
+        private readonly RequestDelegate _next;
+
+        public WeChatMiddleware(RequestDelegate next,
             IOptionsSnapshot<List<WeChatOptions>> _wechatOptions,
-            ILogger<WeChatMiddleware> _logger,  
+            ILogger<WeChatMiddleware> _logger,
           IWeChatEventHandler _weChatEventHandler,
           IWechatStore wechatStore
             )
         {
-            
-            logger = _logger; 
-          
-            if(_wechatOptions.Value==null)
+            _next = next;
+            logger = _logger;
+
+            if (_wechatOptions.Value == null)
             {
                 logger.LogInformation("_wechatOptions is null");
-                throw new Exception("not find WeCaht config"); 
+                throw new Exception("not find WeCaht config");
             }
             WeChatOptions = _wechatOptions.Value;
             weChatEventHandler = _weChatEventHandler;
             this.wechatStore = wechatStore;
-        } 
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        }
+
+        public async Task InvokeAsync(HttpContext context)
         {
             WeChatRequestData wxRequestData = new WeChatRequestData();
             wxRequestData.RequestUrl = context.Request.GetDisplayUrl();
@@ -64,7 +68,7 @@ namespace RsCode.WeChat
             {
                 //验证消息的确来自微信服务器 接收微信的GET请求
                 //https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Access_Overview.html
-               
+
                 if (context.Request.Method == "GET")
                 {
                     string signature = context.Request.Query["signature"].ToString();
@@ -95,19 +99,19 @@ namespace RsCode.WeChat
                     sPostData = await reader.ReadToEndAsync();
 
                     logger.LogDebug($"Receive bodyData={sPostData}");
-                    wxRequestData.RequestType="POST";
+                    wxRequestData.RequestType = "POST";
                     wxRequestData.RequestContent = sPostData;
                     if (!sPostData.StartsWith("<xml>"))
                     {
-                        wxRequestData.DataType = "json";    
+                        wxRequestData.DataType = "json";
                     }
 
-                    EncryptMsg encryptMsg =GetEncryptMsg(sPostData);
-                     
+                    EncryptMsg encryptMsg = GetEncryptMsg(sPostData);
+
 
                     WeChatMessageType messageType = WeChatMessageType.WxUser;
                     string id = encryptMsg.ToUserName;
-                    if(string.IsNullOrEmpty(id))
+                    if (string.IsNullOrEmpty(id))
                     {
                         //消息属于第三方平台
                         id = encryptMsg.AppId;
@@ -118,10 +122,10 @@ namespace RsCode.WeChat
                     {
                         wxRequestData.DecryptContent = $"未找到原始Id={id}的配置信息";
                         wechatStore.SaveData(wxRequestData);
-                        throw new Exception($"未找到原始Id={id}的配置信息"); 
+                        throw new Exception($"未找到原始Id={id}的配置信息");
                     }
-                       
-                  
+
+
 
                     if (encrypt_type == "aes")
                     {
@@ -129,12 +133,12 @@ namespace RsCode.WeChat
                         WXBizMsgCrypt crypt = new WXBizMsgCrypt(wechat.Token, wechat.EncodingAESKey, wechat.AppId, wechat.DataTransferFormatter);
                         int ret = crypt.DecryptMsg(msg_signature, timestamp, nonce, sPostData, ref data);
                         logger.LogDebug("解密后微信明文消息=" + data);
-                        wxRequestData.DecryptContent =data;
+                        wxRequestData.DecryptContent = data;
                         wechatStore.SaveData(wxRequestData);
 
                         if (ret == 0)
                         {
-                            if(messageType== WeChatMessageType.WxUser)
+                            if (messageType == WeChatMessageType.WxUser)
                             {
                                 var msg = new WxUserMessage();
                                 msg.LoadData(data, wechat.DataTransferFormatter);
@@ -163,7 +167,7 @@ namespace RsCode.WeChat
                                 //被动回复用户消息https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Passive_user_reply_message.html
                                 await context.Response.WriteAsync(result);
                             }
-                            if(messageType==WeChatMessageType.ThirdPlatform)
+                            if (messageType == WeChatMessageType.ThirdPlatform)
                             {
                                 var msg = new ThirdPlatformMessage();
                                 msg.LoadData(data, wechat.DataTransferFormatter);
@@ -176,42 +180,44 @@ namespace RsCode.WeChat
                         {
                             logger.LogDebug($"ret={ret}POST DATA={sPostData}");
                             context.Response.ContentType = "application/json";
-                            await context.Response.WriteAsync(ret.ToString()); 
+                            await context.Response.WriteAsync(ret.ToString());
                         }
                     }
                     else
                     {
                         context.Response.ContentType = "application/json";
                         await context.Response.WriteAsync("");
-                        
+
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                if(ex.InnerException!=null)
+                if (ex.InnerException != null)
                 {
-              
+
                     logger.LogError(ex.InnerException.Message);
-                }else
+                }
+                else
                 {
                     logger.LogError(ex.Message);
-                   
+
                 }
-           
+
             }
 
         }
 
-      
+
 
 
         Dictionary<string, Func<Task<string>>> MessageAction(string data, DataTransferFormatter dataTransferFormatter)
         {
             Dictionary<string, Func<Task<string>>> dic = new Dictionary<string, Func<Task<string>>>();
 
-            dic.Add("SCAN",   async () => {
+            dic.Add("SCAN", async () =>
+            {
                 ScanEventMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -224,9 +230,10 @@ namespace RsCode.WeChat
                     msg.SetValues();
                 }
 
-                  return await weChatEventHandler.OnCanEvent(msg);
+                return await weChatEventHandler.OnCanEvent(msg);
             });
-            dic.Add("LOCATION", async () => {
+            dic.Add("LOCATION", async () =>
+            {
                 LocationEventMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -240,7 +247,8 @@ namespace RsCode.WeChat
                 }
                 return await weChatEventHandler.OnLocationEvent(msg);
             });
-            dic.Add("CLICK", async () => {
+            dic.Add("CLICK", async () =>
+            {
                 MenuClickEventMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -254,7 +262,8 @@ namespace RsCode.WeChat
                 }
                 return await weChatEventHandler.OnMenuClickEvent(msg);
             });
-            dic.Add("VIEW", async () => {
+            dic.Add("VIEW", async () =>
+            {
                 MenuViewEventMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -268,7 +277,8 @@ namespace RsCode.WeChat
                 }
                 return await weChatEventHandler.OnMenuViewEvent(msg);
             });
-            dic.Add("subscribe", async () => {
+            dic.Add("subscribe", async () =>
+            {
                 SubscribeEventMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -282,7 +292,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnSubscribeEvent(msg);
             });
-            dic.Add("unsubscribe", async () => {
+            dic.Add("unsubscribe", async () =>
+            {
                 UnSubscribeEventMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -297,7 +308,8 @@ namespace RsCode.WeChat
                 return await weChatEventHandler.OnUnSubscribeEvent(msg);
             });
 
-            dic.Add("image", async () => {
+            dic.Add("image", async () =>
+            {
                 ImageMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -311,7 +323,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnReceiveImageMessageEvent(msg);
             });
-            dic.Add("link", async () => {
+            dic.Add("link", async () =>
+            {
                 LinkMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -325,7 +338,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnReceiveLinkMessageEvent(msg);
             });
-            dic.Add("location", async () => {
+            dic.Add("location", async () =>
+            {
                 LocationMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -339,7 +353,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnReceiveLocationMessageEvent(msg);
             });
-            dic.Add("transfer_customer_service", async () => {
+            dic.Add("transfer_customer_service", async () =>
+            {
                 TransferCustomerServiceMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -353,7 +368,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnTransferCustomerServiceMessageEvent(msg);
             });
-            dic.Add("showvideo", async () => {
+            dic.Add("showvideo", async () =>
+            {
                 ShortVideoMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -367,7 +383,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnReceiveShortVideoMessageEvent(msg);
             });
-            dic.Add("text", async () => {
+            dic.Add("text", async () =>
+            {
                 TextMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -381,7 +398,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnReceiveTextMessageEvent(msg);
             });
-            dic.Add("video", async () => {
+            dic.Add("video", async () =>
+            {
                 VideoMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -395,7 +413,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnReceiveVideoMessageEvent(msg);
             });
-            dic.Add("voice", async () => {
+            dic.Add("voice", async () =>
+            {
                 VoiceMessage msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -409,7 +428,8 @@ namespace RsCode.WeChat
 
                 return await weChatEventHandler.OnReceiveVoiceMessageEvent(msg);
             });
-            dic.Add("custom", async () => {
+            dic.Add("custom", async () =>
+            {
                 MessageBase msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -425,7 +445,8 @@ namespace RsCode.WeChat
             });
 
             //用户进入客服会话
-            dic.Add("user_enter_tempsession", async () => {
+            dic.Add("user_enter_tempsession", async () =>
+            {
                 MessageBase msg = null;
                 if (dataTransferFormatter == DataTransferFormatter.JSON)
                 {
@@ -468,25 +489,25 @@ namespace RsCode.WeChat
                 {
                     doc.LoadXml(sPostData);
                     root = doc.FirstChild;
-                     
+
                     encryptMsg = new EncryptMsg();
-                    encryptMsg.ToUserName=root["ToUserName"]?.InnerText;
+                    encryptMsg.ToUserName = root["ToUserName"]?.InnerText;
                     encryptMsg.AppId = root["AppId"]?.InnerText;
                     encryptMsg.Encrypt = root["Encrypt"].InnerText;
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex.Message); 
+                    logger.LogError(ex.Message);
                 }
             }
             else
             {
-                 encryptMsg = JsonSerializer.Deserialize<EncryptMsg>(sPostData);
+                encryptMsg = JsonSerializer.Deserialize<EncryptMsg>(sPostData);
             }
 
             return encryptMsg;
         }
 
-  
+
     }
 }
