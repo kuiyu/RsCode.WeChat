@@ -64,7 +64,7 @@ namespace RsCode.WeChat
                 }
             };
             if (expireSeconds < 1 || expireSeconds > 2592000) 
-                expireSeconds = 30;
+                expireSeconds = 300;
 
             ExpireSeconds = expireSeconds;
             AccessToken = token;
@@ -86,7 +86,7 @@ namespace RsCode.WeChat
                 }
             };
             if (expireSeconds < 1 || expireSeconds > 2592000)
-                expireSeconds = 30;
+                expireSeconds = 300;
             ExpireSeconds = expireSeconds;
             AccessToken = token;
         }
