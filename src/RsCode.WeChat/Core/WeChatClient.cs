@@ -103,8 +103,8 @@ namespace RsCode.WeChat
             }
             else
             {
-                string s = JsonSerializer.Serialize(request, request.GetType());
-                HttpContent httpContent = new StringContent(s, Encoding.UTF8, "application/json");
+				string s = JsonSerializer.Serialize(request, request.GetType(), new JsonSerializerOptions { Encoder = JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All) });
+				HttpContent httpContent = new StringContent(s, Encoding.UTF8, "application/json");
 
                 var res = await httpClient.PostAsync(url, httpContent);
                 return res;

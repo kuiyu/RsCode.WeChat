@@ -6,27 +6,32 @@
  * gitee: https://gitee.com/kuiyu/RsCode.WeChat.git
  * 
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace RsCode.WeChat.Message.CommonMessage
 {
-  public  class ImageMessage : MessageBase
+	public  class ImageMessage : MessageBase
     {
-        /// <summary>
-        /// 	图片链接（由系统生成）
-        /// </summary>
-        public string PicUrl { get; set; }
+		public ImageMessage()
+		{
+			this.MsgType = "image";
+		}
+		public ImageMessage(string toUserName, string fromUserName, string mediaId)
+		{
+			this.MsgType = "image";
+			ToUserName = toUserName;
+			FromUserName = fromUserName;
+			CreateTime = GetTimeStamp();
+			Image = new ImageContent(mediaId);
+		}
 
-        /// <summary>
-        /// 图片消息媒体id，可以调用获取临时素材接口拉取数据。
-        /// </summary>
-        public string MediaId { get; set; }
 
-        /// <summary>
-        /// 消息id，64位整型
-        /// </summary>
-        public long MsgId { get; set; }
-    }
+		public ImageContent Image { get; set; }
+	}
+	public class ImageContent
+	{
+		public ImageContent(string mediaId)
+		{
+			MediaId = mediaId;
+		}
+		public string MediaId { get; set; } = "";
+	}
 }

@@ -7,7 +7,7 @@
     <PackageIcon>rscode64_64.png</PackageIcon>
     <PackageReleaseNotes>软商网络-微信业务开发包</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Version>1.2.0</Version>
+    <Version>1.2.1</Version>
     <AssemblyVersion>1.0.14.0</AssemblyVersion>
     <Authors>Runsoft</Authors>
     <Title>rscode.cn</Title>
