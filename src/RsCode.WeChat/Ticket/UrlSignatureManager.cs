@@ -6,6 +6,7 @@
  * gitee: https://gitee.com/kuiyu/RsCode.WeChat.git
  * 
  */
+using System;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,7 +48,7 @@ namespace RsCode.WeChat.Ticket
         {
             string ticket = await GetTicketAsync(appId,"jsapi");
             string noncestr = WeChatHelper.GetNonceStr();
-            string timestamp = WeChatHelper.GetTimeStamp();
+            long timestamp =Convert.ToInt64( WeChatHelper.GetTimeStamp());
             string str = $"jsapi_ticket={ticket}&noncestr={noncestr}&timestamp={timestamp}&url={url}";
 
             SHA1 sha1 = SHA1.Create();

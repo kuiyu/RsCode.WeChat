@@ -18,7 +18,7 @@ namespace RsCode.WeChat
         [JsonPropertyName("appId")]
         public string AppId { get; set; }
         [JsonPropertyName("timestamp")]
-        public string Timestamp { get; set; }
+        public long Timestamp { get; set; }
         [JsonPropertyName("nonceStr")]
         public string nonceStr { get; set; }
         [JsonPropertyName("signature")]
